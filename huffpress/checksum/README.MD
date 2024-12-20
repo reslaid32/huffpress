@@ -1,0 +1,1 @@
+## Taken from https://github.com/reslaid32/checksum.git
