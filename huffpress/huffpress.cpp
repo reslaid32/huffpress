@@ -1,112 +1,180 @@
 #include "huffpress.h"
+#include "exceptions.h"
 #include <fstream>
 #include <iostream>
+#include <cstring>
 
 namespace Huffpress {
-    HuffpressFile* InitializeFile() {
-        HuffpressFile* file = new HuffpressFile;
-        return file;
+
+    HuffpressFile::HuffpressFile(const std::string& data) {
+        this->Init(data);
     }
 
-    HuffpressFile* InitializeFile(const std::string& data) {
-        HuffpressFile* file = new HuffpressFile;
-        file->byteVec = Huffman::Compress(data, file->freqMap, file->bitLength);
-        file->size = file->byteVec.size();
-        file->sourceChecksum = checksum(data.c_str(), data.size());
-        file->compressedChecksum = checksum(reinterpret_cast<char*>(file->byteVec.data()), file->size);
-        return file;
+    void HuffpressFile::Init(const std::string& data) {
+        this->byteVec = Huffman::Compress(data, this->freqMap, this->bitLength);
+        this->size = this->byteVec.size();
+        this->sourceChecksum = checksum(data.c_str(), data.size());
+        this->compressedChecksum = checksum(reinterpret_cast<char*>(this->byteVec.data()), this->size);
     }
 
-    void FreeFile(HuffpressFile* file) {
-        if (!file) { return; }
-        delete file;
-    }
-
-    void Serialize(const HuffpressFile* file, const std::string& filePath) {
-        if (!file) { return; }
-
+    void HuffpressFile::Serialize(const std::string& filePath) {
         std::ofstream out(filePath, std::ios::binary);
-        
         if (!out) {
-            std::cerr << "Error opening file for writing" << std::endl;
-            return;
+            throw Exceptions::FileOpenException(filePath);
         }
 
-        out.write(file->magic, sizeof(file->magic));
-        out.write(reinterpret_cast<const char*>(file->version), sizeof(file->version));
-        
-        size_t freqMapSize = file->freqMap.size();
-        out.write(reinterpret_cast<const char*>(&freqMapSize), sizeof(freqMapSize));
+        try {
+            out.write(this->magic, sizeof(this->magic));
+            out.write(reinterpret_cast<const char*>(this->version), sizeof(this->version));
+            
+            size_t freqMapSize = this->freqMap.size();
+            out.write(reinterpret_cast<const char*>(&freqMapSize), sizeof(freqMapSize));
 
-        for (const auto& pair : file->freqMap) {
-            out.write(reinterpret_cast<const char*>(&pair.first), sizeof(pair.first)); 
-            out.write(reinterpret_cast<const char*>(&pair.second), sizeof(pair.second));
+            for (const auto& pair : this->freqMap) {
+                out.write(reinterpret_cast<const char*>(&pair.first), sizeof(pair.first)); 
+                out.write(reinterpret_cast<const char*>(&pair.second), sizeof(pair.second));
+            }
+
+            out.write(reinterpret_cast<const char*>(&this->bitLength), sizeof(this->bitLength));
+
+            out.write(reinterpret_cast<const char*>(&this->size), sizeof(this->size));
+            out.write(reinterpret_cast<const char*>(&this->sourceChecksum), sizeof(this->sourceChecksum));
+            out.write(reinterpret_cast<const char*>(&this->compressedChecksum), sizeof(this->compressedChecksum));
+
+            out.write(reinterpret_cast<const char*>(this->byteVec.data()), this->size);
+
+            out.close();
+        } catch (const std::exception& e) {
+            throw Exceptions::SerializationException(e.what());
         }
-
-        out.write(reinterpret_cast<const char*>(&file->bitLength), sizeof(file->bitLength));
-
-        out.write(reinterpret_cast<const char*>(&file->size), sizeof(file->size));
-        out.write(reinterpret_cast<const char*>(&file->sourceChecksum), sizeof(file->sourceChecksum));
-        out.write(reinterpret_cast<const char*>(&file->compressedChecksum), sizeof(file->compressedChecksum));
-
-        out.write(reinterpret_cast<const char*>(file->byteVec.data()), file->size);
-
-        out.close();
     }
 
-    HuffpressFile* ParseFile(const std::string& filePath) {
+    void HuffpressFile::SerializeToBuffer(Huffman::ByteVector& buffer) {
+        try {
+            buffer.clear();
+
+            buffer.insert(buffer.end(), this->magic, this->magic + sizeof(this->magic));
+            buffer.insert(buffer.end(), reinterpret_cast<const char*>(this->version), reinterpret_cast<const char*>(this->version) + sizeof(this->version));
+
+            size_t freqMapSize = this->freqMap.size();
+            buffer.insert(buffer.end(), reinterpret_cast<const char*>(&freqMapSize), reinterpret_cast<const char*>(&freqMapSize) + sizeof(freqMapSize));
+
+            for (const auto& pair : this->freqMap) {
+                buffer.insert(buffer.end(), reinterpret_cast<const char*>(&pair.first), reinterpret_cast<const char*>(&pair.first) + sizeof(pair.first));
+                buffer.insert(buffer.end(), reinterpret_cast<const char*>(&pair.second), reinterpret_cast<const char*>(&pair.second) + sizeof(pair.second));
+            }
+
+            buffer.insert(buffer.end(), reinterpret_cast<const char*>(&this->bitLength), reinterpret_cast<const char*>(&this->bitLength) + sizeof(this->bitLength));
+
+            buffer.insert(buffer.end(), reinterpret_cast<const char*>(&this->size), reinterpret_cast<const char*>(&this->size) + sizeof(this->size));
+            buffer.insert(buffer.end(), reinterpret_cast<const char*>(&this->sourceChecksum), reinterpret_cast<const char*>(&this->sourceChecksum) + sizeof(this->sourceChecksum));
+            buffer.insert(buffer.end(), reinterpret_cast<const char*>(&this->compressedChecksum), reinterpret_cast<const char*>(&this->compressedChecksum) + sizeof(this->compressedChecksum));
+
+            buffer.insert(buffer.end(), this->byteVec.begin(), this->byteVec.end());
+        } catch (const std::exception& e) {
+            throw Exceptions::SerializationException(e.what());
+        }
+    }
+
+    void HuffpressFile::Parse(const std::string& filePath) {
         std::ifstream in(filePath, std::ios::binary);
-
         if (!in) {
-            std::cerr << "Error opening file for reading" << std::endl;
-            return nullptr;
+            throw Exceptions::FileOpenException(filePath);
         }
+        try {
+            in.read(this->magic, sizeof(this->magic));
+            in.read(reinterpret_cast<char*>(this->version), sizeof(this->version));
 
-        HuffpressFile* file = new HuffpressFile;
+            size_t freqMapSize;
+            in.read(reinterpret_cast<char*>(&freqMapSize), sizeof(freqMapSize));
 
-        in.read(file->magic, sizeof(file->magic));
-        in.read(reinterpret_cast<char*>(file->version), sizeof(file->version));
+            this->freqMap.clear();
+            for (size_t i = 0; i < freqMapSize; ++i) {
+                char key;
+                int value;
+                in.read(reinterpret_cast<char*>(&key), sizeof(key));
+                in.read(reinterpret_cast<char*>(&value), sizeof(value));
+                this->freqMap[key] = value;
+            }
 
-        size_t freqMapSize;
-        in.read(reinterpret_cast<char*>(&freqMapSize), sizeof(freqMapSize));
+            in.read(reinterpret_cast<char*>(&this->bitLength), sizeof(this->bitLength));
 
-        file->freqMap.clear();
-        for (size_t i = 0; i < freqMapSize; ++i) {
-            char key;
-            int value;
-            in.read(reinterpret_cast<char*>(&key), sizeof(key));
-            in.read(reinterpret_cast<char*>(&value), sizeof(value));
-            file->freqMap[key] = value;
+            in.read(reinterpret_cast<char*>(&this->size), sizeof(this->size));
+            in.read(reinterpret_cast<char*>(&this->sourceChecksum), sizeof(this->sourceChecksum));
+            in.read(reinterpret_cast<char*>(&this->compressedChecksum), sizeof(this->compressedChecksum));
+
+            this->byteVec.resize(this->size);
+            in.read(reinterpret_cast<char*>(this->byteVec.data()), this->size);
+
+            in.close();
+        } catch (const std::exception& e) {
+            throw Exceptions::DeserializationException(e.what());
         }
+    }
+    
+    void HuffpressFile::ParseFromBuffer(const Huffman::ByteVector& buffer) {
+        try {
+            size_t offset = 0;
 
-        in.read(reinterpret_cast<char*>(&file->bitLength), sizeof(file->bitLength));
+            std::memcpy(this->magic, buffer.data() + offset, sizeof(this->magic));
+            offset += sizeof(this->magic);
 
-        in.read(reinterpret_cast<char*>(&file->size), sizeof(file->size));
-        in.read(reinterpret_cast<char*>(&file->sourceChecksum), sizeof(file->sourceChecksum));
-        in.read(reinterpret_cast<char*>(&file->compressedChecksum), sizeof(file->compressedChecksum));
+            std::memcpy(this->version, buffer.data() + offset, sizeof(this->version));
+            offset += sizeof(this->version);
 
-        file->byteVec.resize(file->size);
-        in.read(reinterpret_cast<char*>(file->byteVec.data()), file->size);
+            size_t freqMapSize;
+            std::memcpy(&freqMapSize, buffer.data() + offset, sizeof(freqMapSize));
+            offset += sizeof(freqMapSize);
 
-        in.close();
-        return file;
+            this->freqMap.clear();
+            for (size_t i = 0; i < freqMapSize; ++i) {
+                char key;
+                int value;
+                std::memcpy(&key, buffer.data() + offset, sizeof(key));
+                offset += sizeof(key);
+
+                std::memcpy(&value, buffer.data() + offset, sizeof(value));
+                offset += sizeof(value);
+
+                this->freqMap[key] = value;
+            }
+
+            std::memcpy(&this->bitLength, buffer.data() + offset, sizeof(this->bitLength));
+            offset += sizeof(this->bitLength);
+
+            std::memcpy(&this->size, buffer.data() + offset, sizeof(this->size));
+            offset += sizeof(this->size);
+
+            std::memcpy(&this->sourceChecksum, buffer.data() + offset, sizeof(this->sourceChecksum));
+            offset += sizeof(this->sourceChecksum);
+
+            std::memcpy(&this->compressedChecksum, buffer.data() + offset, sizeof(this->compressedChecksum));
+            offset += sizeof(this->compressedChecksum);
+
+            this->byteVec.resize(this->size);
+            std::memcpy(this->byteVec.data(), buffer.data() + offset, this->size);
+        } catch (const std::exception& e) {
+            throw Exceptions::DeserializationException(e.what());
+        }
     }
 
-    void Modify(HuffpressFile* file, const std::string& data) {
-        if (!file) { return; }
-        file->byteVec = Huffman::Compress(data, file->freqMap, file->bitLength);
-        file->size = file->byteVec.size();
-        file->sourceChecksum = checksum(data.c_str(), data.size());
-        file->compressedChecksum = checksum(reinterpret_cast<char*>(file->byteVec.data()), file->size);
+    void HuffpressFile::Modify(const std::string& data) {
+        this->byteVec = Huffman::Compress(data, this->freqMap, this->bitLength);
+        this->size = this->byteVec.size();
+        this->sourceChecksum = checksum(data.c_str(), data.size());
+        this->compressedChecksum = checksum(reinterpret_cast<char*>(this->byteVec.data()), this->size);
     }
 
-    void Modify(HuffpressFile* file, const Huffman::ByteVector& newByteVec, const Huffman::FreqMap& newFreqMap, size_t bitLength) {
-        if (!file) { return; }
-        file->byteVec = newByteVec;
-        file->size = file->byteVec.size();
-        file->freqMap = newFreqMap;
-        std::string decompressed = Huffman::Decompress(file->byteVec, file->freqMap, bitLength);
-        file->sourceChecksum = checksum(decompressed.c_str(), decompressed.size());
-        file->compressedChecksum = checksum(reinterpret_cast<char*>(file->byteVec.data()), file->size);
+    void HuffpressFile::Modify(const Huffman::ByteVector& newByteVec, const Huffman::FreqMap& newFreqMap, size_t bitLength) {
+        this->byteVec = newByteVec;
+        this->size = this->byteVec.size();
+        this->freqMap = newFreqMap;
+        std::string decompressed = Huffman::Decompress(this->byteVec, this->freqMap, bitLength);
+        this->sourceChecksum = checksum(decompressed.c_str(), decompressed.size());
+        this->compressedChecksum = checksum(reinterpret_cast<char*>(this->byteVec.data()), this->size);
+    }
+
+    std::string HuffpressFile::Decompress() {
+        return Huffman::Decompress(this->byteVec, this->freqMap, this->bitLength);
     }
 } // Huffpress

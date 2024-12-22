@@ -3,9 +3,30 @@
 
 namespace Huffpress {
 
-    // Structure representing a compressed file in Huffpress format
-    struct HuffpressFile 
+    class HuffpressFile
     {
+    public:
+        HuffpressFile() = default;
+        HuffpressFile(const std::string& data);
+
+        // Initialize the structure by data
+        void Init(const std::string& data);
+        // Serialize to a file
+        void Serialize(const std::string& filePath);
+        // Serialize to a buffer
+        void SerializeToBuffer(Huffman::ByteVector& buffer);
+        // Deserialize from a file
+        void Parse(const std::string& filePath);
+        // Deserialize from a buffer
+        void ParseFromBuffer(const Huffman::ByteVector& buffer);
+        // Modify the file's data by compressing the new string data
+        void Modify(const std::string& data);
+        // Modify the file's data by directly setting the new byte vector and frequency map
+        void Modify(const Huffman::ByteVector& newByteVec, const Huffman::FreqMap& newFreqMap, size_t bitLength);
+        // Get decompressed buffer
+        std::string Decompress();
+
+    public:
         // Magic number for identifying Huffpress files ("HPF")
         // Used to ensure the file is in the correct format when parsing
         char magic[3] = {'H', 'P', 'F'};
@@ -38,25 +59,4 @@ namespace Huffpress {
         // Used for verifying the integrity of the compressed data
         checksum_t compressedChecksum;
     };
-
-    // Initialize the structure
-    HuffpressFile* InitializeFile();
-
-    // Initialize the structure
-    HuffpressFile* InitializeFile(const std::string& data);
-
-    // Free the memory
-    void FreeFile(HuffpressFile* file);
-
-    // Serialize to a file
-    void Serialize(const HuffpressFile* file, const std::string& filePath);
-
-    // Deserialize from a file
-    HuffpressFile* ParseFile(const std::string& filePath);
-
-    // Modify the file's data by compressing the new string data
-    void Modify(HuffpressFile* file, const std::string& data);
-
-    // Modify the file's data by directly setting the new byte vector and frequency map
-    void Modify(HuffpressFile* file, const Huffman::ByteVector& newByteVec, const Huffman::FreqMap& newFreqMap, size_t bitLength);
 } // Huffpress
