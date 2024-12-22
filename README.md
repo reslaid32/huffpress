@@ -27,7 +27,7 @@ The `HuffpressFile` class is designed to handle Huffman compression and decompre
 - **Description**: Serializes the `HuffpressFile` object to a file at the specified path. The file contains the compressed data and the necessary headers.
 - **Usage**:
   ```cpp
-  HuffpressFile file;
+  Huffpress::HuffpressFile file;
   file.Init("Hello, World!");
   file.Serialize("output.hpf");
   ```
@@ -36,7 +36,7 @@ The `HuffpressFile` class is designed to handle Huffman compression and decompre
 - **Description**: Serializes the `HuffpressFile` object into a buffer (`Huffman::ByteVector`). The buffer will contain the compressed data and header information.
 - **Usage**:
   ```cpp
-  HuffpressFile file;
+  Huffpress::HuffpressFile file;
   file.Init("Hello, World!");
   Huffman::ByteVector buffer;
   file.SerializeToBuffer(buffer);
@@ -46,7 +46,7 @@ The `HuffpressFile` class is designed to handle Huffman compression and decompre
 - **Description**: Parses a Huffpress file from the specified file path. The file must be in the Huffpress format, containing both compressed data and a header.
 - **Usage**:
   ```cpp
-  HuffpressFile file;
+  Huffpress::HuffpressFile file;
   file.Parse("output.hpf");
   ```
 
@@ -54,7 +54,7 @@ The `HuffpressFile` class is designed to handle Huffman compression and decompre
 - **Description**: Parses a Huffpress file from the given buffer. The buffer must contain the compressed data and header in the correct format.
 - **Usage**:
   ```cpp
-  HuffpressFile file;
+  Huffpress::HuffpressFile file;
   Huffman::ByteVector buffer; // previously filled buffer
   file.ParseFromBuffer(buffer);
   ```
@@ -63,7 +63,7 @@ The `HuffpressFile` class is designed to handle Huffman compression and decompre
 - **Description**: Modifies the `HuffpressFile` object by compressing the new string data and updating the file accordingly. This replaces the old compressed data.
 - **Usage**:
   ```cpp
-  HuffpressFile file;
+  Huffpress::HuffpressFile file;
   file.Init("Old Data");
   file.Modify("New Data");
   ```
@@ -72,7 +72,7 @@ The `HuffpressFile` class is designed to handle Huffman compression and decompre
 - **Description**: Modifies the `HuffpressFile` object with the new byte vector, frequency map, and bit length. This method allows direct setting of the compressed data, frequency map, and the bit length.
 - **Usage**:
   ```cpp
-  HuffpressFile file;
+  Huffpress::HuffpressFile file;
   Huffman::ByteVector newByteVec = {/* compressed data */};
   Huffman::FreqMap newFreqMap = {/* frequency map */};
   size_t bitLength = 1000; // Example bit length
@@ -83,7 +83,7 @@ The `HuffpressFile` class is designed to handle Huffman compression and decompre
 - **Description**: Decompresses the data stored in the `HuffpressFile` object and returns the original uncompressed string.
 - **Usage**:
   ```cpp
-  HuffpressFile file;
+  Huffpress::HuffpressFile file;
   file.Init("Hello, World!");
   std::string decompressedData = file.Decompress();
   ```
