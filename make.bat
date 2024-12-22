@@ -12,7 +12,7 @@ set TESTOBJDIR=%TESTOUTDIR%\obj
 :: Set the compiler and flags
 set CC=clang
 set CXX=clang++
-set CXXFLAGS=-std=c++11 -Wall
+set CXXFLAGS=-std=c++11 -Wall -fPIC
 set LDFLAGS=-L.\%BINDIR%
 
 :: Check for command-line argument (default is "all")

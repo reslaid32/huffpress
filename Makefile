@@ -9,7 +9,7 @@ TESTOBJDIR = $(TESTOUTDIR)/obj
 # Set the compiler and flags
 CC = clang
 CXX = clang++
-CXXFLAGS = -std=c++11 -Wall
+CXXFLAGS = -std=c++11 -Wall -fPIC
 LDFLAGS = -L$(BINDIR)
 
 ifeq ($(shell uname), Linux)
@@ -50,7 +50,7 @@ libraries: $(OBJDIR) $(BINDIR)
 	@echo "Building huffpress library..."
 	$(CXX) $(CXXFLAGS) -I./huffpress/huffman -I./huffpress/checksum -c ./huffpress/huffpress.cpp -o $(OBJDIR)/huffpress.o
 	$(CXX) -shared $(OBJDIR)/huffpress.o -o $(BINDIR)/libhuffpress$(LIBEXT) $(LDFLAGS) -lhuffman -lchecksum
-	
+
 # Build tests
 tests: $(OBJDIR) $(BINDIR)
 	@echo "Building tests..."
