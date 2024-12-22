@@ -41,16 +41,16 @@ $(BINDIR):
 libraries: $(OBJDIR) $(BINDIR)
 	@echo "Building huffman library..."
 	$(CXX) $(CXXFLAGS) -I./huffpress/huffman -c ./huffpress/huffman/huffman.cpp -o $(OBJDIR)/huffman.o
-	$(CXX) -shared $(OBJDIR)/huffman.o -o $(BINDIR)/huffman$(LIBEXT)
+	$(CXX) -shared $(OBJDIR)/huffman.o -o $(BINDIR)/libhuffman$(LIBEXT)
 
 	@echo "Building checksum library..."
 	$(CXX) -c ./huffpress/checksum/checksum.c -o $(OBJDIR)/checksum.o
-	$(CXX) -shared $(OBJDIR)/checksum.o -o $(BINDIR)/checksum$(LIBEXT)
+	$(CXX) -shared $(OBJDIR)/checksum.o -o $(BINDIR)/libchecksum$(LIBEXT)
 
 	@echo "Building huffpress library..."
 	$(CXX) $(CXXFLAGS) -I./huffpress/huffman -I./huffpress/checksum -c ./huffpress/huffpress.cpp -o $(OBJDIR)/huffpress.o
-	$(CXX) -shared $(OBJDIR)/huffpress.o -o $(BINDIR)/huffpress$(LIBEXT) $(LDFLAGS) -lhuffman -lchecksum
-
+	$(CXX) -shared $(OBJDIR)/huffpress.o -o $(BINDIR)/libhuffpress$(LIBEXT) $(LDFLAGS) -lhuffman -lchecksum
+	
 # Build tests
 tests: $(OBJDIR) $(BINDIR)
 	@echo "Building tests..."
