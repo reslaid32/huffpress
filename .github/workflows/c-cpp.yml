@@ -16,4 +16,4 @@ jobs:
     - name: make all
       run: make all
     - name: unit test
-      run: ./build/bin/unit
+      run: cd ./build/bin && ls && ./unit
