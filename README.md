@@ -32,6 +32,14 @@ The `HuffpressFile` class is designed to handle Huffman compression and decompre
   file.Serialize("output.hpf");
   ```
 
+### `void BufferedSerialize(const std::string& filePath, const size_t bufferSize)`
+- **Description**: Serializes a Huffpress file to the specified file path using a buffer of the given size. This function writes the file in chunks to improve performance when working with large files. The file is written in the Huffpress format, including both compressed data and the header.
+- **Usage**:
+  ```cpp
+  Huffpress::HuffpressFile file;
+  file.BufferedSerialize("output.hpf", 1024);  // Buffer size is 1024 bytes
+  ```
+
 ### `void SerializeToBuffer(Huffman::ByteVector& buffer)`
 - **Description**: Serializes the `HuffpressFile` object into a buffer (`Huffman::ByteVector`). The buffer will contain the compressed data and header information.
 - **Usage**:
@@ -48,6 +56,14 @@ The `HuffpressFile` class is designed to handle Huffman compression and decompre
   ```cpp
   Huffpress::HuffpressFile file;
   file.Parse("output.hpf");
+  ```
+
+### `void BufferedParse(const std::string& filePath, const size_t bufferSize)`
+- **Description**: Parses a Huffpress file from the specified file path using a buffer of the given size. This function reads the file in chunks to reduce memory usage, making it more efficient for larger files. The file must be in the Huffpress format, containing both compressed data and a header.
+- **Usage**:
+  ```cpp
+  Huffpress::HuffpressFile file;
+  file.BufferedParse("output.hpf", 1024);  // Buffer size is 1024 bytes
   ```
 
 ### `void ParseFromBuffer(const Huffman::ByteVector& buffer)`
