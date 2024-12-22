@@ -1,3 +1,6 @@
+
+#define HUFFMAN_LIBRARY_BUILD
+
 #include "huffman.h"
 #include <queue>
 #include <vector>
@@ -5,18 +8,18 @@
 
 namespace Huffman {
 
-    HuffmanNode::HuffmanNode(char data, int freq) {
+    HUFFMAN_API HuffmanNode::HuffmanNode(char data, int freq) {
         this->data = data;
         this->freq = freq;
         left = right = nullptr;
     }
 
-    bool HuffmanCompare::operator()(HuffmanNode* left, HuffmanNode* right) {
+    HUFFMAN_API bool HuffmanCompare::operator()(HuffmanNode* left, HuffmanNode* right) {
         return left->freq > right->freq;
     }
 
     namespace Methods {
-        HuffmanNode* BuildHuffmanTree(const Huffman::FreqMap& freqMap) {
+        HUFFMAN_API HuffmanNode* BuildHuffmanTree(const Huffman::FreqMap& freqMap) {
             std::priority_queue<HuffmanNode*, std::vector<HuffmanNode*>, HuffmanCompare> pq;
 
             for (const auto& pair : freqMap) {
@@ -37,7 +40,7 @@ namespace Huffman {
             return pq.top();
         }
 
-        void GenerateCodes(HuffmanNode* node, const std::string& code, std::map<char, std::string>& huffmanCode) {
+        HUFFMAN_API void GenerateCodes(HuffmanNode* node, const std::string& code, std::map<char, std::string>& huffmanCode) {
             if (!node) return;
 
             if (!node->left && !node->right) {
@@ -48,14 +51,14 @@ namespace Huffman {
             GenerateCodes(node->right, code + '1', huffmanCode);
         }
 
-        void FreeTree(HuffmanNode* node) {
+        HUFFMAN_API void FreeTree(HuffmanNode* node) {
             if (node == nullptr) return;
             FreeTree(node->left);
             FreeTree(node->right);
             delete node;
         }
 
-        Huffman::ByteVector PackBitsToBytes(const std::string& bitString, size_t& bitLength) {
+        HUFFMAN_API Huffman::ByteVector PackBitsToBytes(const std::string& bitString, size_t& bitLength) {
             Huffman::ByteVector compressedData;
             Huffman::Byte currentByte = 0;
             int bitCount = 0;
@@ -84,7 +87,7 @@ namespace Huffman {
             return compressedData;
         }
 
-        std::string UnpackBytesToBits(const Huffman::ByteVector& compressedData, size_t bitLength) {
+        HUFFMAN_API std::string UnpackBytesToBits(const Huffman::ByteVector& compressedData, size_t bitLength) {
             std::string bitString;
 
             for (Huffman::Byte byte : compressedData) {
@@ -98,7 +101,7 @@ namespace Huffman {
 
     }
 
-    Huffman::ByteVector Compress(const std::string& text, FreqMap& freqMap, size_t& bitLength) {
+    HUFFMAN_API Huffman::ByteVector Compress(const std::string& text, FreqMap& freqMap, size_t& bitLength) {
         for (char ch : text) {
             freqMap[ch]++;
         }
@@ -118,7 +121,7 @@ namespace Huffman {
         return compressed;
     }
 
-    std::string Decompress(const ByteVector& compressed, const FreqMap& freqMap, size_t bitLength) {
+    HUFFMAN_API std::string Decompress(const ByteVector& compressed, const FreqMap& freqMap, size_t bitLength) {
         HuffmanNode* root = Methods::BuildHuffmanTree(freqMap);
         std::string result;
 
@@ -138,7 +141,7 @@ namespace Huffman {
     }
 
     namespace Stringize {
-        std::string StringizeFreqMap(const Huffman::FreqMap& freqMap) {
+        HUFFMAN_API std::string StringizeFreqMap(const Huffman::FreqMap& freqMap) {
             std::stringstream ss;
 
             for (const auto& pair : freqMap) {
@@ -148,7 +151,7 @@ namespace Huffman {
             return ss.str();
         }
 
-        std::string StringizeByteVec(const Huffman::ByteVector& byteVec) {
+        HUFFMAN_API std::string StringizeByteVec(const Huffman::ByteVector& byteVec) {
             std::stringstream ss;
 
             for (size_t i = 0; i < byteVec.size(); ++i) {

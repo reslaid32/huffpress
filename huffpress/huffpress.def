@@ -1,0 +1,10 @@
+LIBRARY huffpress
+EXPORTS
+    HuffpressFile::HuffpressFile
+    HuffpressFile::Init
+    HuffpressFile::Serialize
+    HuffpressFile::SerializeToBuffer
+    HuffpressFile::Parse
+    HuffpressFile::ParseFromBuffer
+    HuffpressFile::Modify
+    HuffpressFile::Decompress

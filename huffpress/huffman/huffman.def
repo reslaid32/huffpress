@@ -1,0 +1,11 @@
+LIBRARY huffman
+EXPORTS
+    BuildHuffmanTree
+    GenerateCodes
+    FreeTree
+    PackBitsToBytes
+    UnpackBytesToBits
+    Compress
+    Decompress
+    StringizeFreqMap
+    StringizeByteVec
