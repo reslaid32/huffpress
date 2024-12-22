@@ -12,6 +12,14 @@ CXX = clang++
 CXXFLAGS = -std=c++11 -Wall
 LDFLAGS = -L$(BINDIR)
 
+ifeq ($(shell uname), Linux)
+  LIBEXT = .so
+  APPEXT = 
+else
+  LIBEXT = .dll
+  APPEXT = .exe
+endif
+
 # Default target
 # Target for building libraries only
 only-lib: libraries
@@ -33,15 +41,15 @@ $(BINDIR):
 libraries: $(OBJDIR) $(BINDIR)
 	@echo "Building huffman library..."
 	$(CXX) $(CXXFLAGS) -I./huffpress/huffman -c ./huffpress/huffman/huffman.cpp -o $(OBJDIR)/huffman.o
-	$(CXX) -shared $(OBJDIR)/huffman.o -o $(BINDIR)/huffman.dll
+	$(CXX) -shared $(OBJDIR)/huffman.o -o $(BINDIR)/huffman$(LIBEXT)
 
 	@echo "Building checksum library..."
 	$(CXX) -c ./huffpress/checksum/checksum.c -o $(OBJDIR)/checksum.o
-	$(CXX) -shared $(OBJDIR)/checksum.o -o $(BINDIR)/checksum.dll
+	$(CXX) -shared $(OBJDIR)/checksum.o -o $(BINDIR)/checksum$(LIBEXT)
 
 	@echo "Building huffpress library..."
 	$(CXX) $(CXXFLAGS) -I./huffpress/huffman -I./huffpress/checksum -c ./huffpress/huffpress.cpp -o $(OBJDIR)/huffpress.o
-	$(CXX) -shared $(OBJDIR)/huffpress.o -o $(BINDIR)/huffpress.dll $(LDFLAGS) -lhuffman -lchecksum
+	$(CXX) -shared $(OBJDIR)/huffpress.o -o $(BINDIR)/huffpress$(LIBEXT) $(LDFLAGS) -lhuffman -lchecksum
 
 # Build tests
 tests: $(OBJDIR) $(BINDIR)
@@ -53,7 +61,7 @@ tests: $(OBJDIR) $(BINDIR)
 	@echo "Building test executable..."
 	$(CXX) $(CXXFLAGS) -I$(TESTDIR) -I./huffpress -c $(TESTDIR)/unit.cpp -o $(OBJDIR)/unit.o
 
-	$(CXX) $(CXXFLAGS) $(OBJDIR)/unit.o $(OBJDIR)/unit.framework.o -o $(BINDIR)/unit.exe $(LDFLAGS) -lhuffman -lchecksum -lhuffpress
+	$(CXX) $(CXXFLAGS) $(OBJDIR)/unit.o $(OBJDIR)/unit.framework.o -o $(BINDIR)/unit$(APPEXT) $(LDFLAGS) -lhuffman -lchecksum -lhuffpress
 
 # Clean up object files (optional)
 clean:
