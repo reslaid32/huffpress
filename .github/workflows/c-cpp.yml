@@ -13,7 +13,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: make all
+
+    - name: Build project
       run: make all
-    - name: unit test
-      run: LD_LIBRARY_PATH=./build/bin:$LD_LIBRARY_PATH ./unit
+
+    - name: Run unit tests
+      run: |
+        cd build/bin
+        LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH ./unit
