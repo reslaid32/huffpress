@@ -15,10 +15,14 @@ namespace Huffpress {
         HUFFPRESS_API void Init(const std::string& data);
         // Serialize to a file
         HUFFPRESS_API void Serialize(const std::string& filePath);
+        // Serialize to a file (buffered writing, default buffer size 64 KB)
+        HUFFPRESS_API void BufferedSerialize(const std::string& filePath, const size_t bufferSize = 64 * 1024);
         // Serialize to a buffer
         HUFFPRESS_API void SerializeToBuffer(Huffman::ByteVector& buffer);
         // Deserialize from a file
         HUFFPRESS_API void Parse(const std::string& filePath);
+        // Desrialize from a file (buffered reading, default buffer size 64 KB)
+        HUFFPRESS_API void BufferedParse(const std::string& filePath, const size_t bufferSize = 64 * 1024);
         // Deserialize from a buffer
         HUFFPRESS_API void ParseFromBuffer(const Huffman::ByteVector& buffer);
         // Modify the file's data by compressing the new string data

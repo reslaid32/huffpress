@@ -29,7 +29,6 @@ if not exist %OUTDIR% mkdir %OUTDIR%
 if not exist %OBJDIR% mkdir %OBJDIR%
 if not exist %BINDIR% mkdir %BINDIR%
 
-:: Default case: 'all' (build everything)
 :: Handle the 'all' case
 if %ARG%=="all" (
     echo Building all...
@@ -38,6 +37,7 @@ if %ARG%=="all" (
     goto end
 )
 
+:: Default case: 'any-lib' (build only lib)
 :: Handle the 'only-lib' case
 if "%ARG%"=="only-lib" (
     echo Building libraries only...

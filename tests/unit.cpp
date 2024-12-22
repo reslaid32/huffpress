@@ -1,8 +1,11 @@
 #include "framework/tinytest.h"
 #include "../huffpress/huffpress.h"
 #include <string>
+#include <chrono>
+#include <cstring>
+#include <iostream>
 
-// Test 1: File initialization with data
+// Test 1 (00): File initialization with data
 ttret_t test_initialize_file(void) {
     std::string testData = "Hello, World!";
 
@@ -16,7 +19,7 @@ ttret_t test_initialize_file(void) {
     tinytestdone();
 }
 
-// Test 2: Data modification
+// Test 2 (01): Data modification
 ttret_t test_modify_file(void) {
     std::string testData = "Hello, World!";
     Huffpress::HuffpressFile file(testData);
@@ -32,9 +35,10 @@ ttret_t test_modify_file(void) {
     tinytestdone();
 }
 
-// Test 3: Serialization and deserialization
+// Test 3 (02): Serialization and deserialization
 ttret_t test_serialize_and_deserialize(void) {
-    std::string testData = "Hello, World!";
+    // auto start = std::chrono::high_resolution_clock::now();
+    std::string testData = "Hello World!";
     Huffpress::HuffpressFile file(testData);
     
     // Serialization
@@ -48,13 +52,46 @@ ttret_t test_serialize_and_deserialize(void) {
     ttcheck(loadedFile.header.magic[0] == 'H');
     ttcheck(loadedFile.header.magic[1] == 'P');
     ttcheck(loadedFile.header.magic[2] == 'F');
+    ttcheck(checksum(testData.c_str(), testData.size()) == loadedFile.header.sourceChecksum);
     ttcheck(loadedFile.Decompress().compare(testData) == 0);
+    // auto end = std::chrono::high_resolution_clock::now();
+    // std::chrono::duration<double, std::milli> duration = end - start;
+
+    // std::cout << "Duration: " << duration.count() << " ms" << std::endl;
     
     ttcheck(std::remove(filePath.c_str()) == 0); // Remove 'testfile.hpf'
     tinytestdone();
 }
 
-// Test 4: Checksum validation
+// Test 4 (03): Buffered serialization and deserialization
+ttret_t test_buffered_serialize_and_deserialize(void) {   
+    // auto start = std::chrono::high_resolution_clock::now();
+    std::string testData = "Hello World!";
+    Huffpress::HuffpressFile file(testData);
+
+    // Serialization
+    const std::string filePath = "testfile.hpf";
+    file.BufferedSerialize(filePath); 
+
+    // Deserialiation
+    Huffpress::HuffpressFile loadedFile;
+    loadedFile.BufferedParse(filePath);
+
+    ttcheck(loadedFile.header.magic[0] == 'H');
+    ttcheck(loadedFile.header.magic[1] == 'P');
+    ttcheck(loadedFile.header.magic[2] == 'F');
+    ttcheck(checksum(testData.c_str(), testData.size()) == loadedFile.header.sourceChecksum);
+    ttcheck(loadedFile.Decompress().compare(testData) == 0);
+    // auto end = std::chrono::high_resolution_clock::now();
+    // std::chrono::duration<double, std::milli> duration = end - start;
+
+    // std::cout << "Duration: " << duration.count() << " ms" << std::endl;=
+
+    ttcheck(std::remove(filePath.c_str()) == 0); // Remove 'testfile.hpf'
+    ttdone();
+}
+
+// Test 5 (05): Checksum validation
 ttret_t test_check_sums(void) {
     std::string testData = "Hello, World!";
     Huffpress::HuffpressFile file(testData);
@@ -68,10 +105,11 @@ ttret_t test_check_sums(void) {
 
 // Array of test functions
 ttest_t tests[] = {
-    { test_initialize_file, "Test initialization" },
-    { test_modify_file, "Test modification" },
-    { test_serialize_and_deserialize, "Test serialization and deserialization" },
-    { test_check_sums, "Test checksum validation" }
+    { test_initialize_file, "Test initialization"                           },
+    { test_modify_file, "Test modification"                                 },
+    { test_serialize_and_deserialize, "Test serialization"                  },
+    { test_buffered_serialize_and_deserialize, "Test buff. serialization"   },
+    { test_check_sums, "Test checksum validation"                           }
 };
 
 // Main function to run the tests

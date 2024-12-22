@@ -3,8 +3,10 @@ EXPORTS
     HuffpressFile::HuffpressFile
     HuffpressFile::Init
     HuffpressFile::Serialize
+    HuffpressFile::BufferedSerialize
     HuffpressFile::SerializeToBuffer
     HuffpressFile::Parse
+    HuffpressFile::BufferedParse
     HuffpressFile::ParseFromBuffer
     HuffpressFile::Modify
     HuffpressFile::Decompress

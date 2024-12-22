@@ -28,6 +28,7 @@ namespace Huffpress {
 
         try {
             out.write(this->header.magic, sizeof(this->header.magic));
+
             out.write(reinterpret_cast<const char*>(this->header.version), sizeof(this->header.version));
             
             size_t freqMapSize = this->header.freqMap.size();
@@ -45,6 +46,70 @@ namespace Huffpress {
             out.write(reinterpret_cast<const char*>(&this->header.compressedChecksum), sizeof(this->header.compressedChecksum));
 
             out.write(reinterpret_cast<const char*>(this->byteVec.data()), this->header.size);
+
+            out.close();
+        } catch (const std::exception& e) {
+            throw Exceptions::SerializationException(e.what());
+        }
+    }
+
+    HUFFPRESS_API void HuffpressFile::BufferedSerialize(const std::string& filePath, const size_t bufferSize) {
+        std::ofstream out(filePath, std::ios::binary);
+        if (!out) {
+            throw Exceptions::FileOpenException(filePath);
+        }
+
+        try {
+            std::vector<char> buffer(bufferSize);
+            size_t bufferPos = 0;
+
+            auto writeBuffer = [&out, &buffer, &bufferPos]() {
+                if (bufferPos > 0) {
+                    out.write(buffer.data(), bufferPos);
+                    bufferPos = 0;
+                }
+            };
+
+            std::memcpy(buffer.data(), this->header.magic, sizeof(this->header.magic));
+            bufferPos += sizeof(this->header.magic);
+            writeBuffer();
+
+            std::memcpy(buffer.data(), this->header.version, sizeof(this->header.version));
+            bufferPos += sizeof(this->header.version);
+            writeBuffer();
+
+            size_t freqMapSize = this->header.freqMap.size();
+            std::memcpy(buffer.data(), &freqMapSize, sizeof(freqMapSize));
+            bufferPos += sizeof(freqMapSize);
+            writeBuffer();
+
+            for (const auto& pair : this->header.freqMap) {
+                std::memcpy(buffer.data(), &pair.first, sizeof(pair.first));
+                bufferPos += sizeof(pair.first);
+                std::memcpy(buffer.data() + bufferPos, &pair.second, sizeof(pair.second));
+                bufferPos += sizeof(pair.second);
+                writeBuffer();
+            }
+
+            std::memcpy(buffer.data(), &this->header.bitLength, sizeof(this->header.bitLength));
+            bufferPos += sizeof(this->header.bitLength);
+            writeBuffer();
+
+            std::memcpy(buffer.data(), &this->header.size, sizeof(this->header.size));
+            bufferPos += sizeof(this->header.size);
+            writeBuffer();
+
+            std::memcpy(buffer.data(), &this->header.sourceChecksum, sizeof(this->header.sourceChecksum));
+            bufferPos += sizeof(this->header.sourceChecksum);
+            writeBuffer();
+
+            std::memcpy(buffer.data(), &this->header.compressedChecksum, sizeof(this->header.compressedChecksum));
+            bufferPos += sizeof(this->header.compressedChecksum);
+            writeBuffer();
+
+            std::memcpy(buffer.data(), this->byteVec.data(), this->header.size);
+            bufferPos += this->header.size;
+            writeBuffer();
 
             out.close();
         } catch (const std::exception& e) {
@@ -114,7 +179,77 @@ namespace Huffpress {
             throw Exceptions::DeserializationException(e.what());
         }
     }
-    
+
+    HUFFPRESS_API void HuffpressFile::BufferedParse(const std::string& filePath, const size_t bufferSize) {
+        std::ifstream in(filePath, std::ios::binary);
+        if (!in) {
+            throw Exceptions::FileOpenException(filePath);
+        }
+
+        try {
+            std::vector<char> buffer(bufferSize);
+            size_t bufferPos = 0;
+
+            auto readBuffer = [&in, &buffer, &bufferPos, bufferSize]() {
+                if (bufferPos == 0 || bufferPos == bufferSize) {
+                    in.read(buffer.data(), bufferSize);
+                    bufferPos = 0;
+                }
+            };
+
+            readBuffer();
+            std::memcpy(this->header.magic, buffer.data() + bufferPos, sizeof(this->header.magic));
+            bufferPos += sizeof(this->header.magic);
+
+            readBuffer();
+            std::memcpy(this->header.version, buffer.data() + bufferPos, sizeof(this->header.version));
+            bufferPos += sizeof(this->header.version);
+
+            size_t freqMapSize;
+            readBuffer();
+            std::memcpy(&freqMapSize, buffer.data() + bufferPos, sizeof(freqMapSize));
+            bufferPos += sizeof(freqMapSize);
+
+            this->header.freqMap.clear();
+            for (size_t i = 0; i < freqMapSize; ++i) {
+                char key;
+                int value;
+                readBuffer();
+                std::memcpy(&key, buffer.data() + bufferPos, sizeof(key));
+                bufferPos += sizeof(key);
+                readBuffer();
+                std::memcpy(&value, buffer.data() + bufferPos, sizeof(value));
+                bufferPos += sizeof(value);
+                this->header.freqMap[key] = value;
+            }
+
+            readBuffer();
+            std::memcpy(&this->header.bitLength, buffer.data() + bufferPos, sizeof(this->header.bitLength));
+            bufferPos += sizeof(this->header.bitLength);
+
+            readBuffer();
+            std::memcpy(&this->header.size, buffer.data() + bufferPos, sizeof(this->header.size));
+            bufferPos += sizeof(this->header.size);
+
+            readBuffer();
+            std::memcpy(&this->header.sourceChecksum, buffer.data() + bufferPos, sizeof(this->header.sourceChecksum));
+            bufferPos += sizeof(this->header.sourceChecksum);
+
+            readBuffer();
+            std::memcpy(&this->header.compressedChecksum, buffer.data() + bufferPos, sizeof(this->header.compressedChecksum));
+            bufferPos += sizeof(this->header.compressedChecksum);
+
+            this->byteVec.resize(this->header.size);
+            readBuffer();
+            std::memcpy(this->byteVec.data(), buffer.data() + bufferPos, this->header.size);
+            bufferPos += this->header.size;
+
+            in.close();
+        } catch (const std::exception& e) {
+            throw Exceptions::DeserializationException(e.what());
+        }
+    }
+        
     HUFFPRESS_API void HuffpressFile::ParseFromBuffer(const Huffman::ByteVector& buffer) {
         try {
             size_t offset = 0;
