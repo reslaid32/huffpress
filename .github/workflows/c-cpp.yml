@@ -15,5 +15,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: make all
       run: make all
+    - name: preparing for use in local directory
+      run: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./build/bin
     - name: unit test
-      run: cd ./build/bin && ls && ./unit
+      run: cd ./build/bin/unit
