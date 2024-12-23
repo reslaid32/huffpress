@@ -34,48 +34,48 @@ function Build-Libraries {
     Write-Host "Building libraries..."
 
     # Build the huffman library
-    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -I"./huffpress/huffman" -c "./huffpress/huffman/huffman.cpp" -o "$OBJDIR\huffman.o"
+    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -I"./huffpress/huffman" -c "./huffpress/huffman/huffman.cpp" -o "$OBJDIR\huffman.obj"
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Failed to build huffman.o"
+        Write-Host "Failed to build huffman.obj"
         exit $LASTEXITCODE
     }
-    & $CXX $CXXTARGET -shared "$OBJDIR\huffman.o" -o "$BINDIR\libhuffman$LIBEXT"
+    & $CXX $CXXTARGET -shared "$OBJDIR\huffman.obj" -o "$BINDIR\libhuffman$LIBEXT"
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to build libhuffman$LIBEXT"
         exit $LASTEXITCODE
     }
 
     # Build the checksum library
-    & $CXX $CXXTARGET -c "./huffpress/checksum/checksum.c" -o "$OBJDIR\huffchecksum.o"
+    & $CXX $CXXTARGET -c "./huffpress/checksum/checksum.c" -o "$OBJDIR\huffchecksum.obj"
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Failed to build huffchecksum.o"
+        Write-Host "Failed to build huffchecksum.obj"
         exit $LASTEXITCODE
     }
-    & $CXX $CXXTARGET -shared "$OBJDIR\huffchecksum.o" -o "$BINDIR\libhuffchecksum$LIBEXT"
+    & $CXX $CXXTARGET -shared "$OBJDIR\huffchecksum.obj" -o "$BINDIR\libhuffchecksum$LIBEXT"
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to build libhuffchecksum$LIBEXT"
         exit $LASTEXITCODE
     }
 
     # Build the huffpress library
-    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -I"./huffpress/huffman" -I"./huffpress/checksum" -c "./huffpress/huffpress.cpp" -o "$OBJDIR\huffpress.o"
+    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -I"./huffpress/huffman" -I"./huffpress/checksum" -c "./huffpress/huffpress.cpp" -o "$OBJDIR\huffpress.obj"
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Failed to build huffpress.o"
+        Write-Host "Failed to build huffpress.obj"
         exit $LASTEXITCODE
     }
-    & $CXX $CXXTARGET -shared "$OBJDIR\huffpress.o" -o "$BINDIR\libhuffpress$LIBEXT" $LDFLAGS -lhuffman -lhuffchecksum
+    & $CXX $CXXTARGET -shared "$OBJDIR\huffpress.obj" -o "$BINDIR\libhuffpress$LIBEXT" $LDFLAGS -lhuffman -lhuffchecksum
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to build libhuffpress$LIBEXT"
         exit $LASTEXITCODE
     }
 
     # Build the huffpress CLI library
-    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -I"./huffpress/huffman" -I"./huffpress/checksum" -I"./huffpress" -c "./huffpress/cli/cli.cpp" -o "$OBJDIR\huffpresscli.o"
+    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -I"./huffpress/huffman" -I"./huffpress/checksum" -I"./huffpress" -c "./huffpress/cli/cli.cpp" -o "$OBJDIR\huffpresscli.obj"
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Failed to build huffpresscli.o"
+        Write-Host "Failed to build huffpresscli.obj"
         exit $LASTEXITCODE
     }
-    & $CXX $CXXTARGET -shared "$OBJDIR\huffpresscli.o" -o "$BINDIR\libhuffpresscli$LIBEXT" $LDFLAGS -lhuffman -lhuffchecksum -lhuffpress
+    & $CXX $CXXTARGET -shared "$OBJDIR\huffpresscli.obj" -o "$BINDIR\libhuffpresscli$LIBEXT" $LDFLAGS -lhuffman -lhuffchecksum -lhuffpress
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to build libhuffpresscli$LIBEXT"
         exit $LASTEXITCODE
@@ -86,20 +86,20 @@ function Build-Tests {
     Write-Host "Building tests..."
 
     # Build the framework
-    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -c "$TESTDIR\framework\tinytest.c" -o "$OBJDIR\unit.framework.o"
+    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -c "$TESTDIR\framework\tinytest.c" -o "$OBJDIR\unit.framework.obj"
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to build framework object file"
         exit $LASTEXITCODE
     }
 
     # Build the test executable
-    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -I$TESTDIR -I"./huffpress" -c "$TESTDIR\unit.cpp" -o "$OBJDIR\unit.o"
+    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -I$TESTDIR -I"./huffpress" -c "$TESTDIR\unit.cpp" -o "$OBJDIR\unit.obj"
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to build test object file"
         exit $LASTEXITCODE
     }
 
-    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC "$OBJDIR\unit.o" "$OBJDIR\unit.framework.o" -o "$BINDIR\unit$APPEXT" $LDFLAGS -lhuffman -lhuffchecksum -lhuffpress
+    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC "$OBJDIR\unit.obj" "$OBJDIR\unit.framework.obj" -o "$BINDIR\unit$APPEXT" $LDFLAGS -lhuffman -lhuffchecksum -lhuffpress
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to build test executable"
         exit $LASTEXITCODE
@@ -109,13 +109,13 @@ function Build-Tests {
 function Build-Examples {
     Write-Host "Building examples..."
 
-    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -I. -c "$EXAMPLESDIR\cli.cpp" -o "$OBJDIR\cli.o"
+    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC -I. -c "$EXAMPLESDIR\cli.cpp" -o "$OBJDIR\cli.obj"
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to build example (cli) object file"
         exit $LASTEXITCODE
     }
 
-    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC "$OBJDIR\cli.o" -o "$BINDIR\cli$APPEXT" $LDFLAGS -lhuffman -lhuffchecksum -lhuffpress -lhuffpresscli
+    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC "$OBJDIR\cli.obj" -o "$BINDIR\cli$APPEXT" $LDFLAGS -lhuffman -lhuffchecksum -lhuffpress -lhuffpresscli
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to build example (cli) executable"
         exit $LASTEXITCODE
