@@ -149,6 +149,9 @@ namespace Huffpress {
         else if (command == "revert") {
             handleRevert();
         }
+        else if (command == "refresh") {
+            handleRefresh();
+        }
         else if (command == "file") {
             handleFile();
         }
@@ -223,6 +226,15 @@ namespace Huffpress {
             filePath = "";
             file = Huffpress::HuffpressFile();
             std::cout << "The file is closed!\n";
+        }
+    }
+
+    HUFFPRESS_CLI_API void HuffpressCLI::handleRefresh() {
+        if (filePath.empty()) {
+            std::cout << "You do not have an open file, skip\n";
+        } else {
+            file.Parse(filePath);
+            std::cout << "Successfully\n";
         }
     }
 
@@ -350,6 +362,7 @@ namespace Huffpress {
         std::cout << "  clean               - Clear selected file\n";
         std::cout << "  commit              - Overwrites the selected file with all changes\n";
         std::cout << "  revert              - Roll back changes that have not been committed\n";
+        std::cout << "  refresh             - Refresh file buffer\n";
         std::cout << "  version             - Write a huffpress library version\n";
         std::cout << "  file                - Write a file info\n";
         std::cout << "  exit                - Exit the program\n";

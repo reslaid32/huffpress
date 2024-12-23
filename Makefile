@@ -46,16 +46,16 @@ libraries: $(OBJDIR) $(BINDIR)
 	$(CXX) -shared $(OBJDIR)/huffman.o -o $(BINDIR)/libhuffman$(LIBEXT)
 
 	@echo "Building checksum library..."
-	$(CXX) -c ./huffpress/checksum/checksum.c -o $(OBJDIR)/checksum.o
-	$(CXX) -shared $(OBJDIR)/checksum.o -o $(BINDIR)/libchecksum$(LIBEXT)
+	$(CXX) -c ./huffpress/checksum/checksum.c -o $(OBJDIR)/huffchecksum.o
+	$(CXX) -shared $(OBJDIR)/huffchecksum.o -o $(BINDIR)/libhuffchecksum$(LIBEXT)
 
 	@echo "Building huffpress library..."
 	$(CXX) $(CXXFLAGS) -I./huffpress/huffman -I./huffpress/checksum -c ./huffpress/huffpress.cpp -o $(OBJDIR)/huffpress.o
-	$(CXX) -shared $(OBJDIR)/huffpress.o -o $(BINDIR)/libhuffpress$(LIBEXT) $(LDFLAGS) -lhuffman -lchecksum
+	$(CXX) -shared $(OBJDIR)/huffpress.o -o $(BINDIR)/libhuffpress$(LIBEXT) $(LDFLAGS) -lhuffman -lhuffchecksum
 
 	@echo "Building huffpress cli library..."
 	$(CXX) $(CXXFLAGS) -I./huffpress/huffman -I./huffpress/checksum -I./huffpress -c ./huffpress/cli/cli.cpp -o $(OBJDIR)/huffpresscli.o
-	$(CXX) -shared $(OBJDIR)/huffpresscli.o -o $(BINDIR)/libhuffpresscli$(LIBEXT) $(LDFLAGS) -lhuffman -lchecksum -lhuffpress
+	$(CXX) -shared $(OBJDIR)/huffpresscli.o -o $(BINDIR)/libhuffpresscli$(LIBEXT) $(LDFLAGS) -lhuffman -lhuffchecksum -lhuffpress
 
 # Build tests
 tests: $(OBJDIR) $(BINDIR)
@@ -67,14 +67,14 @@ tests: $(OBJDIR) $(BINDIR)
 	@echo "Building test executable..."
 	$(CXX) $(CXXFLAGS) -I$(TESTDIR) -I./huffpress -c $(TESTDIR)/unit.cpp -o $(OBJDIR)/unit.o
 
-	$(CXX) $(CXXFLAGS) $(OBJDIR)/unit.o $(OBJDIR)/unit.framework.o -o $(BINDIR)/unit$(APPEXT) $(LDFLAGS) -lhuffman -lchecksum -lhuffpress
+	$(CXX) $(CXXFLAGS) $(OBJDIR)/unit.o $(OBJDIR)/unit.framework.o -o $(BINDIR)/unit$(APPEXT) $(LDFLAGS) -lhuffman -lhuffchecksum -lhuffpress
 
 # Build examples
 examples: $(OBJDIR) $(BINDIR)
 	@echo "Building examples..."
 
 	$(CXX) $(CXXFLAGS) -I. -c $(EXAMPLESDIR)/cli.cpp -o $(OBJDIR)/cli.o
-	$(CXX) $(CXXFLAGS) $(OBJDIR)/cli.o -o $(BINDIR)/cli$(APPEXT) $(LDFLAGS) -lhuffman -lchecksum -lhuffpress -lhuffpresscli
+	$(CXX) $(CXXFLAGS) $(OBJDIR)/cli.o -o $(BINDIR)/cli$(APPEXT) $(LDFLAGS) -lhuffman -lhuffchecksum -lhuffpress -lhuffpresscli
 
 # Clean up object files (optional)
 clean:

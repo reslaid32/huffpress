@@ -30,6 +30,7 @@ namespace Huffpress {
         HUFFPRESS_CLI_API void handleExists(const std::string& remainingTokens);
         HUFFPRESS_CLI_API void handleSelect(const std::string& remainingTokens);
         HUFFPRESS_CLI_API void handleDeselect();
+        HUFFPRESS_CLI_API void handleRefresh();
         HUFFPRESS_CLI_API void handleCat();
         HUFFPRESS_CLI_API void handleSet(const std::string& remainingTokens);
         HUFFPRESS_CLI_API void handleDump(const std::string& remainingTokens);
