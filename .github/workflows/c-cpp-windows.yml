@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: C/C++ CI (Windows,Powershell script)
 
 on:
   push:
@@ -8,12 +8,12 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
     - name: Build project
-      run: make all
+      run: .\make.ps1 all
     - name: Run unit tests
       run: |
         cd build/bin
-        LD_LIBRARY_PATH=./:$LD_LIBRARY_PATH ./unit
+        .\unit

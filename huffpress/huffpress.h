@@ -10,7 +10,7 @@
 
 namespace Huffpress {
 
-    const uint8_t Version[3] = {0, 1, 0};
+    const uint8_t Version[3] = {0, 1, 2};
 
     class HUFFPRESS_API HuffpressFile
     {
