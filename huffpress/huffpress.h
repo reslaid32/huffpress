@@ -1,9 +1,16 @@
+#ifndef HUFFPRESS_H
+#define HUFFPRESS_H
+
 #include "export.h"
 
 #include "checksum/checksum.h"
 #include "huffman/huffman.h"
 
+#include "exceptions.h"
+
 namespace Huffpress {
+
+    const uint8_t Version[3] = {0, 1, 0};
 
     class HUFFPRESS_API HuffpressFile
     {
@@ -40,7 +47,7 @@ namespace Huffpress {
 
             // Version of the file format (major, minor)
             // Helps in managing backward compatibility for future versions of the format
-            uint8_t version[3] = {0, 1, 0};
+            uint8_t version[3] = {Huffpress::Version[0], Huffpress::Version[1], Huffpress::Version[2]};
 
             // Frequency map used for compression
             // Stores the frequency of each character in the original data for Huffman encoding
@@ -48,7 +55,7 @@ namespace Huffpress {
 
             // Bit length of the compressed data
             // Represents the total number of bits used in the compressed byte vector
-            size_t bitLength;
+            size_t bitLength = 0;
 
             // Size of the byte vector (compressed data)
             // Used to track the size of the compressed data
@@ -56,11 +63,11 @@ namespace Huffpress {
 
             // Checksum of the original (source) data
             // Used for verifying the integrity of the source data
-            checksum_t sourceChecksum;
+            checksum_t sourceChecksum = 0;
 
             // Checksum of the compressed (byte) data
             // Used for verifying the integrity of the compressed data
-            checksum_t compressedChecksum;
+            checksum_t compressedChecksum = 0;
         };
 
         // File header
@@ -71,3 +78,4 @@ namespace Huffpress {
         Huffman::ByteVector byteVec;
     };    
 } // Huffpress
+#endif // HUFFPRESS_H

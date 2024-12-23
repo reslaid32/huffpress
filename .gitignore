@@ -31,5 +31,11 @@
 *.out
 *.app
 
+# VSCode dir
 .vscode
+# .old dir
+.old
+# Build dir
 build
+# HPF Files
+*.hpf

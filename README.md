@@ -85,7 +85,7 @@ The `HuffpressFile` class is designed to handle Huffman compression and decompre
   ```
 
 ### `void Modify(const Huffman::ByteVector& newByteVec, const Huffman::FreqMap& newFreqMap, size_t bitLength)`
-- **Description**: Modifies the `HuffpressFile` object with the new byte vector, frequency map, and bit length. This method allows direct setting of the compressed data, frequency map, and the bit length.
+- **Description**: Modifies the `HuffpressFile` object with the new byte vector, frequency map, and bit length. This method allows direct setting of the compressed data, frequency map, and the bit length. (The null value is done with: `file.Modify({}, {{}}, 0)`)
 - **Usage**:
   ```cpp
   Huffpress::HuffpressFile file;
@@ -119,3 +119,42 @@ struct _HuffpressFileHeader {
     checksum_t compressedChecksum;   // Checksum of the compressed data
 };
 ```
+
+# HuffpressCLI Class Documentation (in [huffpress_cli.h](./huffpress_cli.h))
+
+The `HuffpressCLI` class is designed to provide a command-line interface (CLI) for interacting with the `Huffpress` compression format. It allows users to run commands to manipulate Huffpress files, including actions like creating, modifying, compressing, and decompressing files. This class is intended for use with the `huffpress` compression format in a terminal or shell environment.
+
+## Constructor
+
+### `HuffpressCLI()`
+- **Description**: Default constructor for initializing the `HuffpressCLI` object, which prepares the interface to handle user commands.
+- **Usage**:
+  ```cpp
+  Huffpress::HuffpressCLI cli;
+  ```
+
+## Methods
+
+### `void run()`
+- **Description**: Starts the CLI, awaiting user input. This method processes the input and executes commands interactively until the user decides to quit.
+- **Usage**:
+  ```cpp
+  Huffpress::HuffpressCLI cli;
+  cli.run();
+  ```
+
+### `void run(const std::string& str)`
+- **Description**: Runs a single command from the provided string input. This method parses and executes the command without interactive input.
+- **Usage**:
+  ```cpp
+  Huffpress::HuffpressCLI cli;
+  cli.run("touch test.hpf");
+  ```
+
+### `void run(int argc, char* argv[])`
+- **Description**: Executes commands passed as arguments in the command line. This method allows for batch processing or script execution.
+- **Usage**:
+  ```cpp
+  Huffpress::HuffpressCLI cli;
+  cli.run(argc, argv);
+  ```

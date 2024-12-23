@@ -1,7 +1,6 @@
 #define HUFFPRESS_LIBRARY_BUILD
 
 #include "huffpress.h"
-#include "exceptions.h"
 #include <fstream>
 #include <iostream>
 #include <cstring>
@@ -297,6 +296,7 @@ namespace Huffpress {
     }
 
     HUFFPRESS_API void HuffpressFile::Modify(const std::string& data) {
+        this->header.freqMap.clear();
         this->byteVec = Huffman::Compress(data, this->header.freqMap, this->header.bitLength);
         this->header.size = this->byteVec.size();
         this->header.sourceChecksum = checksum(data.c_str(), data.size());

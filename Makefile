@@ -3,8 +3,7 @@ OUTDIR = build
 OBJDIR = $(OUTDIR)/obj
 BINDIR = $(OUTDIR)/bin
 TESTDIR = tests
-TESTOUTDIR = $(OUTDIR)/$(TESTDIR)
-TESTOBJDIR = $(TESTOUTDIR)/obj
+EXAMPLESDIR = examples
 
 # Set the compiler and flags
 CC = clang
@@ -25,10 +24,13 @@ endif
 only-lib: libraries
 
 # Target for building all project (with tests)
-all: libraries tests
+all: libraries tests examples
 
 # Target for building tests only
 only-test: tests
+ 
+# Target for building examples only
+only-examples: examples
 
 # Create directories if they don't exist
 $(OBJDIR):
@@ -51,6 +53,10 @@ libraries: $(OBJDIR) $(BINDIR)
 	$(CXX) $(CXXFLAGS) -I./huffpress/huffman -I./huffpress/checksum -c ./huffpress/huffpress.cpp -o $(OBJDIR)/huffpress.o
 	$(CXX) -shared $(OBJDIR)/huffpress.o -o $(BINDIR)/libhuffpress$(LIBEXT) $(LDFLAGS) -lhuffman -lchecksum
 
+	@echo "Building huffpress cli library..."
+	$(CXX) $(CXXFLAGS) -I./huffpress/huffman -I./huffpress/checksum -I./huffpress -c ./huffpress/cli/cli.cpp -o $(OBJDIR)/huffpresscli.o
+	$(CXX) -shared $(OBJDIR)/huffpresscli.o -o $(BINDIR)/libhuffpresscli$(LIBEXT) $(LDFLAGS) -lhuffman -lchecksum -lhuffpress
+
 # Build tests
 tests: $(OBJDIR) $(BINDIR)
 	@echo "Building tests..."
@@ -63,8 +69,15 @@ tests: $(OBJDIR) $(BINDIR)
 
 	$(CXX) $(CXXFLAGS) $(OBJDIR)/unit.o $(OBJDIR)/unit.framework.o -o $(BINDIR)/unit$(APPEXT) $(LDFLAGS) -lhuffman -lchecksum -lhuffpress
 
+# Build examples
+examples: $(OBJDIR) $(BINDIR)
+	@echo "Building examples..."
+
+	$(CXX) $(CXXFLAGS) -I. -c $(EXAMPLESDIR)/cli.cpp -o $(OBJDIR)/cli.o
+	$(CXX) $(CXXFLAGS) $(OBJDIR)/cli.o -o $(BINDIR)/cli$(APPEXT) $(LDFLAGS) -lhuffman -lchecksum -lhuffpress -lhuffpresscli
+
 # Clean up object files (optional)
 clean:
 	rm -rf $(OBJDIR) $(BINDIR) $(OUTDIR)
 
-.PHONY: all only-lib only-test libraries tests clean
+.PHONY: all only-lib only-test only-examples libraries tests examples clean

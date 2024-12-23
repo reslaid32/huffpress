@@ -1,3 +1,6 @@
+#ifndef HUFFPRESS_EXCEPTIONS
+#define HUFFPRESS_EXCEPTIONS
+
 #include <stdexcept>
 
 namespace Huffpress
@@ -33,3 +36,5 @@ namespace Huffpress
         };
     } // namespace Exceptions
 } // namespace Huffpress
+
+#endif // HUFFPRESS_EXCEPTIONS
