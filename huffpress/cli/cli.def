@@ -21,6 +21,7 @@ EXPORTS
     HuffpressCLI::handleClean
     HuffpressCLI::handleCommit
     HuffpressCLI::handleRevert
+    HuffpressCLI::handleRefresh
     HuffpressCLI::handleFile
     HuffpressCLI::handleVersion
     HuffpressCLI::handleSystemCommand
