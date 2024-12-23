@@ -10,7 +10,7 @@ $EXAMPLESDIR = "examples"
 $CXX = "clang++"
 $CXXFLAGS = "-std=c++11"
 $CXXWARNINGS = "-Wall"
-$CXXPIC = "-fPIC" 
+$CXXPIC = "-fPIE" 
 $LDFLAGS = "-L$BINDIR"
 
 # Check for OS (Windows or Linux)
