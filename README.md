@@ -111,7 +111,7 @@ The header for the Huffpress file contains critical information, including magic
 ```cpp
 struct _HuffpressFileHeader {
     char magic[3] = {'H', 'P', 'F'}; // Magic number for file identification
-    uint8_t version[3] = {0, 1, 0};  // Version (major, minor)
+    uint8_t version[3];              // Version (major, minor)
     Huffman::FreqMap freqMap;        // Frequency map for Huffman encoding
     size_t bitLength;                // Bit length of the compressed data
     size_t size = 0;                 // Size of the compressed data
