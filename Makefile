@@ -74,7 +74,7 @@ examples: $(OBJDIR) $(BINDIR)
 	@echo "Building examples..."
 
 	$(CXX) $(CXXFLAGS) -I. -c $(EXAMPLESDIR)/cli.cpp -o $(OBJDIR)/cli.o
-	$(CXX) $(CXXFLAGS) $(OBJDIR)/cli.o -o $(BINDIR)/cli$(APPEXT) $(LDFLAGS) -lhuffman -lhuffchecksum -lhuffpress -lhuffpresscli
+	$(CXX) $(CXXFLAGS) $(OBJDIR)/cli.o -o $(BINDIR)/hpfcli$(APPEXT) $(LDFLAGS) -lhuffman -lhuffchecksum -lhuffpress -lhuffpresscli
 
 # Clean up object files (optional)
 clean:

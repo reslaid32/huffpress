@@ -115,7 +115,7 @@ function Build-Examples {
         exit $LASTEXITCODE
     }
 
-    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC "$OBJDIR\cli.obj" -o "$BINDIR\cli$APPEXT" $LDFLAGS -lhuffman -lhuffchecksum -lhuffpress -lhuffpresscli
+    & $CXX $CXXTARGET $CXXFLAGS $CXXWARNINGS $CXXPIC "$OBJDIR\cli.obj" -o "$BINDIR\hpfcli$APPEXT" $LDFLAGS -lhuffman -lhuffchecksum -lhuffpress -lhuffpresscli
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to build example (cli) executable"
         exit $LASTEXITCODE

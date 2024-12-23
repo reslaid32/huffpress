@@ -14,6 +14,10 @@
 #include <cstdlib>
 
 namespace Huffpress {
+    const std::string RED = "\033[31m";
+    const std::string GREEN = "\033[32m";
+    const std::string RESET = "\033[0m";
+
     HUFFPRESS_CLI_API HuffpressCLI::HuffpressCLI() : filePath(""), file() {}
 
     HUFFPRESS_CLI_API void HuffpressCLI::run() {
@@ -21,12 +25,12 @@ namespace Huffpress {
         std::cout << "Welcome to Huffpress CLI! Type 'exit' to quit.\n";
 
         while (true) {
-            std::cout << "File: " << getSelectedFilePath() << " > ";
+            std::cout << "[" << getSelectedFilePath() << "] # ";
             std::getline(std::cin, line);
 
             if (line.empty()) continue;
 
-            std::vector<std::string> commands = splitCommands(line);
+          std::vector<std::string> commands = splitCommands(line);
             for (const std::string& cmd : commands) {
                 std::vector<std::string> tokens = tokenize(cmd);
                 executeCommand(tokens);
@@ -60,8 +64,8 @@ namespace Huffpress {
     }
 
     HUFFPRESS_CLI_API std::string HuffpressCLI::getSelectedFilePath() {
-        if (filePath.empty()) return "None";
-        return filePath;
+        if (filePath.empty()) return RED+"None" + RESET;
+        return GREEN + filePath + RESET;
     }
 
     HUFFPRESS_CLI_API std::vector<std::string> HuffpressCLI::splitCommands(const std::string& line) {
