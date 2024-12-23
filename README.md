@@ -120,7 +120,7 @@ struct _HuffpressFileHeader {
 };
 ```
 
-# HuffpressCLI Class Documentation (in [huffpress_cli.h](./huffpress_cli.h))
+# HuffpressCLI Class Documentation (in [cli.h](./huffpress/cli/cli.h))
 
 The `HuffpressCLI` class is designed to provide a command-line interface (CLI) for interacting with the `Huffpress` compression format. It allows users to run commands to manipulate Huffpress files, including actions like creating, modifying, compressing, and decompressing files. This class is intended for use with the `huffpress` compression format in a terminal or shell environment.
 
