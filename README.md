@@ -145,10 +145,13 @@ The `HuffpressCLI` class is designed to provide a command-line interface (CLI) f
 | `version`             | Write the Huffpress library version                                                             |
 | `file`                | Write file info                                                                                 |
 | `exit`                | Exit the program                                                                                |
+<!-- draft>
+<!-- | `run`                 | Run console loop                                                                                |
+| `stop`                | Stop console loop                                                                               | -->
 
 | Prefix                | Description                                                                                     |
 |-----------------------|-------------------------------------------------------------------------------------------------|
-| `!...`               | Execute everything after `!` in the console                                                      |
+| `!...`                | Execute everything after `!` in the console                                                     |
 
 ## Constructor
 
@@ -178,9 +181,17 @@ The `HuffpressCLI` class is designed to provide a command-line interface (CLI) f
   ```
 
 ### `void run(int argc, char* argv[])`
-- **Description**: Executes commands passed as arguments in the command line. This method allows for batch processing or script execution.
+- **Description**: Executes commands passed as arguments in the command line.
 - **Usage**:
   ```cpp
   Huffpress::HuffpressCLI cli;
   cli.run(argc, argv);
+  ```
+
+### `void runCombine(int argc, char* argv[])`
+- **Description**: Executes commands passed as arguments in the command line. This method allows for batch processing or script execution. If it was not possible to parse the arguments from the arguments, the console will start.
+- **Usage**:
+  ```cpp
+  Huffpress::HuffpressCLI cli;
+  cli.runCombine(argc, argv);
   ```

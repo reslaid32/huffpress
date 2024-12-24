@@ -4,6 +4,8 @@ EXPORTS
     HuffpressCLI::run
     HuffpressCLI::run(const std::string&)
     HuffpressCLI::run(int, char*[])
+    HuffpressCLI::runCombine(int, char*[])
+    HuffpressCLI::run_
     HuffpressCLI::getSelectedFilePath
     HuffpressCLI::splitCommands
     HuffpressCLI::tokenize
@@ -24,6 +26,8 @@ EXPORTS
     HuffpressCLI::handleRefresh
     HuffpressCLI::handleFile
     HuffpressCLI::handleVersion
+    HuffpressCLI::handleRun
+    HuffpressCLI::handleStop
     HuffpressCLI::handleSystemCommand
     HuffpressCLI::quit
     HuffpressCLI::showHelp

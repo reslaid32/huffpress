@@ -5,6 +5,8 @@
 #include "../huffpress.h" 
 
 #include <vector>
+#include <atomic>
+#include <thread>
 
 namespace Huffpress {
     class HUFFPRESS_CLI_API HuffpressCLI {
@@ -12,12 +14,19 @@ namespace Huffpress {
         HUFFPRESS_CLI_API HuffpressCLI();
         
         HUFFPRESS_CLI_API void run();
+        // HUFFPRESS_CLI_API void stop();
+
         HUFFPRESS_CLI_API void run(const std::string& str);
         HUFFPRESS_CLI_API void run(int argc, char* argv[]);
 
+        HUFFPRESS_CLI_API void runCombine(int argc, char* argv[]);
+
     private:
-        std::string filePath;
-        Huffpress::HuffpressFile file;
+        std::string filePath_;
+        Huffpress::HuffpressFile file_;
+        std::atomic<bool> doCliLoop_{true};
+
+        HUFFPRESS_CLI_API void run_();
 
         HUFFPRESS_CLI_API std::string getSelectedFilePath();
         HUFFPRESS_CLI_API std::vector<std::string> splitCommands(const std::string& line);
@@ -40,6 +49,8 @@ namespace Huffpress {
         HUFFPRESS_CLI_API void handleRevert();
         HUFFPRESS_CLI_API void handleFile();
         HUFFPRESS_CLI_API void handleVersion();
+        // HUFFPRESS_CLI_API void handleRun();
+        // HUFFPRESS_CLI_API void handleStop();
         
         HUFFPRESS_CLI_API void handleSystemCommand(const std::string& remainingToken);
         
@@ -54,5 +65,4 @@ namespace Huffpress {
         HUFFPRESS_CLI_API std::string bufferedRead(const std::string& filePath, size_t bufferSize);
     };
 } // Huffpress
-
 #endif // HUFFPRESS_CLI_H

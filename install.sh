@@ -14,6 +14,9 @@ SOURCE_DIR="./build/bin"
 LIBS=("libhuffchecksum.so" "libhuffman.so" "libhuffpress.so" "libhuffpresscli.so")
 BINS=("hpfcli")
 
+# Variable to handle automatic "yes" answer
+AUTO_YES=false
+
 # Function to check for root privileges
 check_root() {
   if [ "$EUID" -ne 0 ]; then
@@ -30,11 +33,13 @@ install_libraries() {
   done
   echo
 
-  # Confirm installation
-  read -p "Do you want to proceed with installing libraries? (y/n): " CONFIRM
-  if [[ "$CONFIRM" != "y" ]]; then
-    echo "Operation canceled."
-    exit 0
+  if ! $AUTO_YES; then
+    # Confirm installation
+    read -p "Do you want to proceed with installing libraries? (y/n): " CONFIRM
+    if [[ "$CONFIRM" != "y" ]]; then
+      echo "Operation canceled."
+      exit 0
+    fi
   fi
 
   # Copy the libraries
@@ -62,11 +67,13 @@ install_binaries() {
   done
   echo
 
-  # Confirm installation
-  read -p "Do you want to proceed with installing binaries? (y/n): " CONFIRM
-  if [[ "$CONFIRM" != "y" ]]; then
-    echo "Operation canceled."
-    exit 0
+  if ! $AUTO_YES; then
+    # Confirm installation
+    read -p "Do you want to proceed with installing binaries? (y/n): " CONFIRM
+    if [[ "$CONFIRM" != "y" ]]; then
+      echo "Operation canceled."
+      exit 0
+    fi
   fi
 
   # Copy the binaries
@@ -90,11 +97,13 @@ uninstall_libraries() {
   done
   echo
 
-  # Confirm uninstallation
-  read -p "Do you want to proceed with uninstalling libraries? (y/n): " CONFIRM
-  if [[ "$CONFIRM" != "y" ]]; then
-    echo "Operation canceled."
-    exit 0
+  if ! $AUTO_YES; then
+    # Confirm uninstallation
+    read -p "Do you want to proceed with uninstalling libraries? (y/n): " CONFIRM
+    if [[ "$CONFIRM" != "y" ]]; then
+      echo "Operation canceled."
+      exit 0
+    fi
   fi
 
   # Remove the libraries
@@ -123,11 +132,13 @@ uninstall_binaries() {
   done
   echo
 
-  # Confirm uninstallation
-  read -p "Do you want to proceed with uninstalling binaries? (y/n): " CONFIRM
-  if [[ "$CONFIRM" != "y" ]]; then
-    echo "Operation canceled."
-    exit 0
+  if ! $AUTO_YES; then
+    # Confirm uninstallation
+    read -p "Do you want to proceed with uninstalling binaries? (y/n): " CONFIRM
+    if [[ "$CONFIRM" != "y" ]]; then
+      echo "Operation canceled."
+      exit 0
+    fi
   fi
 
   # Remove the binaries
@@ -152,6 +163,14 @@ reinstall_libraries_and_binaries() {
   install_binaries
 }
 
+# Parse arguments for -y flag anywhere in the command line
+for arg in "$@"; do
+  if [ "$arg" == "-y" ]; then
+    AUTO_YES=true
+    break
+  fi
+done
+
 # Main script logic
 case "$1" in
   install)
@@ -169,7 +188,7 @@ case "$1" in
     reinstall_libraries_and_binaries
     ;;
   *)
-    echo "Usage: $0 {install|uninstall|reinstall}"
+    echo "Usage: $0 {install|uninstall|reinstall} [-y]"
     exit 1
     ;;
 esac

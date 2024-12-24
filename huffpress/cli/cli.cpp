@@ -12,31 +12,41 @@
 #include <stdexcept>
 #include <cstring>
 #include <cstdlib>
+#include <thread>
 
 namespace Huffpress {
     const std::string RED = "\033[31m";
     const std::string GREEN = "\033[32m";
     const std::string RESET = "\033[0m";
 
-    HUFFPRESS_CLI_API HuffpressCLI::HuffpressCLI() : filePath(""), file() {}
+    HUFFPRESS_CLI_API HuffpressCLI::HuffpressCLI() : filePath_(""), file_() {}
 
-    HUFFPRESS_CLI_API void HuffpressCLI::run() {
+    HUFFPRESS_CLI_API void HuffpressCLI::run_() {
         std::string line;
         std::cout << "Welcome to Huffpress CLI! Type 'exit' to quit.\n";
 
-        while (true) {
+        while (doCliLoop_) {
             std::cout << "[" << getSelectedFilePath() << "] # ";
             std::getline(std::cin, line);
 
             if (line.empty()) continue;
 
-          std::vector<std::string> commands = splitCommands(line);
+            std::vector<std::string> commands = splitCommands(line);
             for (const std::string& cmd : commands) {
                 std::vector<std::string> tokens = tokenize(cmd);
                 executeCommand(tokens);
             }
         }
     }
+
+    HUFFPRESS_CLI_API void HuffpressCLI::run() {
+        doCliLoop_ = true;
+        run_();
+    }
+
+    // HUFFPRESS_CLI_API void HuffpressCLI::stop() {
+    //     doCliLoop_ = false;
+    // }
 
     HUFFPRESS_CLI_API void HuffpressCLI::run(const std::string& str) {
         std::vector<std::string> commands = splitCommands(str);
@@ -56,16 +66,27 @@ namespace Huffpress {
                     std::vector<std::string> tokens = tokenize(cmd);
                     executeCommand(tokens);
                 }
-                return;
             }
         }
+    }
 
-        run();
+    HUFFPRESS_CLI_API void HuffpressCLI::runCombine(int argc, char* argv[]) {
+        for (int i = 1; i < argc; ++i) {
+            if (std::strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
+                std::string commands = argv[i + 1];
+                std::vector<std::string> commandList = splitCommands(commands);
+                for (const std::string& cmd : commandList) {
+                    std::vector<std::string> tokens = tokenize(cmd);
+                    executeCommand(tokens);
+                }
+            }
+        }
+        run(); // stdin
     }
 
     HUFFPRESS_CLI_API std::string HuffpressCLI::getSelectedFilePath() {
-        if (filePath.empty()) return RED+"None" + RESET;
-        return GREEN + filePath + RESET;
+        if (filePath_.empty()) return RED+"None" + RESET;
+        return GREEN + filePath_ + RESET;
     }
 
     HUFFPRESS_CLI_API std::vector<std::string> HuffpressCLI::splitCommands(const std::string& line) {
@@ -162,6 +183,12 @@ namespace Huffpress {
         else if (command == "version") {
             handleVersion();
         }
+        // else if (command == "run") {
+        //     handleRun();
+        // }
+        // else if (command == "stop") {
+        //     handleStop();
+        // }
         else if (command == "exit") {
             quit(EXIT_SUCCESS);
         }
@@ -212,9 +239,9 @@ namespace Huffpress {
     HUFFPRESS_CLI_API void HuffpressCLI::handleSelect(const std::string& remainingTokens) {
         if (fileExists(remainingTokens)) {
             try {
-                filePath = remainingTokens;
-                file.BufferedParse(filePath, 0x20000);
-                std::cout << "File " << filePath << " opened!\n";
+                filePath_ = remainingTokens;
+                file_.BufferedParse(filePath_, 0x20000);
+                std::cout << "File " << filePath_ << " opened!\n";
             } catch (const std::exception& e) {
                 std::cout << "[HPF] Parsing error: " << e.what() << "\n";
             }
@@ -224,38 +251,38 @@ namespace Huffpress {
     }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleDeselect() {
-        if (filePath.empty()) {
+        if (filePath_.empty()) {
             std::cout << "You do not have an open file, skip\n";
         } else {
-            filePath = "";
-            file = Huffpress::HuffpressFile();
+            filePath_ = "";
+            file_ = Huffpress::HuffpressFile();
             std::cout << "The file is closed!\n";
         }
     }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleRefresh() {
-        if (filePath.empty()) {
+        if (filePath_.empty()) {
             std::cout << "You do not have an open file, skip\n";
         } else {
-            file.Parse(filePath);
+            file_.Parse(filePath_);
             std::cout << "Successfully\n";
         }
     }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleCat() {
-        if (filePath.empty()) {
+        if (filePath_.empty()) {
             std::cout << "You do not have an open file, skip\n";
         } else {
-            std::cout << file.Decompress() << "\n";
+            std::cout << file_.Decompress() << "\n";
         }
     }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleSet(const std::string& remainingTokens) {
-        if (filePath.empty()) {
+        if (filePath_.empty()) {
             std::cout << "You do not have an open file, skip\n";
         } else {
             try {
-                file.Modify(remainingTokens);
+                file_.Modify(remainingTokens);
                 std::cout << "Successful, commit the changes with commit\n";
             } catch (const std::exception& e) {
                 std::cout << "An error has occurred: " << e.what() << "\n";
@@ -264,12 +291,12 @@ namespace Huffpress {
     }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleDump(const std::string& remainingTokens) {
-        if (filePath.empty()) {
+        if (filePath_.empty()) {
             std::cout << "You do not have an open file, skip\n";
         } else {
             try {
                 if (!remainingTokens.empty()) {
-                    bufferedWrite(remainingTokens, file.Decompress(), 0x20000);
+                    bufferedWrite(remainingTokens, file_.Decompress(), 0x20000);
                 }
                 std::cout << "Successful\n";
             } catch (const std::exception& e) {
@@ -279,11 +306,11 @@ namespace Huffpress {
     }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleLoad(const std::string& remainingTokens) {
-        if (filePath.empty()) {
+        if (filePath_.empty()) {
             std::cout << "You do not have an open file, skip\n";
         } else {
             try {
-                file.Modify(bufferedRead(remainingTokens, 0x20000));
+                file_.Modify(bufferedRead(remainingTokens, 0x20000));
                 std::cout << "Successful, commit the changes with commit\n";
             } catch (const std::exception& e) {
                 std::cout << "An error has occurred: " << e.what() << "\n";
@@ -292,11 +319,11 @@ namespace Huffpress {
     }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleClean(const std::string& remainingTokens) {
-        if (filePath.empty()) {
+        if (filePath_.empty()) {
             std::cout << "You do not have an open file, skip\n";
         } else {
             try {
-                file.Modify({}, {{}}, 0);
+                file_.Modify({}, {{}}, 0);
                 std::cout << "Successful, commit the changes with commit\n";
             } catch (const std::exception& e) {
                 std::cout << "An error has occurred: " << e.what() << "\n";
@@ -305,11 +332,11 @@ namespace Huffpress {
     }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleCommit() {
-        if (filePath.empty()) {
+        if (filePath_.empty()) {
             std::cout << "You do not have an open file, skip\n";
         } else {
             try {
-                file.BufferedSerialize(filePath, 0x20000);
+                file_.BufferedSerialize(filePath_, 0x20000);
                 std::cout << "Successfully\n";
             } catch (const std::exception& e) {
                 std::cout << "An error has occurred: " << e.what() << "\n";
@@ -318,11 +345,11 @@ namespace Huffpress {
     }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleRevert() {
-        if (filePath.empty()) {
+        if (filePath_.empty()) {
             std::cout << "You do not have an open file, skip\n";
         } else {
             try {
-                file.BufferedParse(filePath, 0x20000);
+                file_.BufferedParse(filePath_, 0x20000);
                 std::cout << "Successfully\n";
             } catch (const std::exception& e) {
                 std::cout << "An error has occurred: " << e.what() << "\n";
@@ -331,16 +358,32 @@ namespace Huffpress {
     }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleFile() {
-        if (filePath.empty()) {
+        if (filePath_.empty()) {
             std::cout << "You do not have an open file, skip\n";
         } else {
-            showFileInfo(filePath, file);
+            showFileInfo(filePath_, file_);
         }
     }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleVersion() {
         printf("Library version: %d.%d.%d\n", Huffpress::Version[0], Huffpress::Version[1], Huffpress::Version[2]);
     }
+
+    // HUFFPRESS_CLI_API void HuffpressCLI::handleRun() {
+    //     if (doCliLoop_) {
+    //         std::cout << "The loop has already running" << std::endl;
+    //     } else {
+    //         run();
+    //     }
+    // }
+
+    // HUFFPRESS_CLI_API void HuffpressCLI::handleStop() {
+    //     if (!doCliLoop_) {
+    //         std::cout << "Loop not running" << std::endl;
+    //     } else {
+    //         stop();
+    //     }
+    // }
 
     HUFFPRESS_CLI_API void HuffpressCLI::handleSystemCommand(const std::string& remainingToken) {
         system(remainingToken.c_str());
@@ -369,6 +412,8 @@ namespace Huffpress {
         std::cout << "  refresh             - Refresh file buffer\n";
         std::cout << "  version             - Write a huffpress library version\n";
         std::cout << "  file                - Write a file info\n";
+        // std::cout << "  run                 - Run console loop\n";
+        // std::cout << "  stop                - Stop console loop\n";
         std::cout << "  exit                - Exit the program\n";
         std::cout << "Available prefixes:\n";
         std::cout << "  !...                - Execute everything after '!' in the console\n";
