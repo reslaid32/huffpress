@@ -12,7 +12,6 @@
 #include <stdexcept>
 #include <cstring>
 #include <cstdlib>
-#include <thread>
 
 namespace Huffpress {
     const std::string RED = "\033[31m";

@@ -5,7 +5,6 @@
 
 int main(int argc, char* argv[]) {
     Huffpress::HuffpressCLI cli;
-    // cli.run("run");
-    cli.run();
+    cli.runCombine(argc, argv);
     return 0;
 }

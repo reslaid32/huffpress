@@ -6,7 +6,6 @@
 
 #include <vector>
 #include <atomic>
-#include <thread>
 
 namespace Huffpress {
     class HUFFPRESS_CLI_API HuffpressCLI {
