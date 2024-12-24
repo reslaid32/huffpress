@@ -124,6 +124,32 @@ struct _HuffpressFileHeader {
 
 The `HuffpressCLI` class is designed to provide a command-line interface (CLI) for interacting with the `Huffpress` compression format. It allows users to run commands to manipulate Huffpress files, including actions like creating, modifying, compressing, and decompressing files. This class is intended for use with the `huffpress` compression format in a terminal or shell environment.
 
+## Commands
+
+| Command                | Description                                                                                     |
+|------------------------|-------------------------------------------------------------------------------------------------|
+| `help`                | Show this help message                                                                          |
+| `touch <path>`        | Creates a clean selected file; if there is a file, it will overwrite it with a clean one        |
+| `remove <path>`       | Deletes a file                                                                                  |
+| `exists <path>`       | Shows whether the file exists                                                                   |
+| `select <path>`       | Open and parse a Huffpress file                                                                 |
+| `deselect`            | Close Huffpress file                                                                            |
+| `cat`                 | Write the decompressed content from the selected file to the console                            |
+| `set <content>`       | Load and compress the content and save to the selected file                                     |
+| `dump <path>`         | Write decompressed content from the selected file to another file                               |
+| `load <path>`         | Load and compress the content of the specified file and save to the selected file               |
+| `clean`               | Clear the selected file                                                                         |
+| `commit`              | Overwrites the selected file with all changes                                                   |
+| `revert`              | Roll back changes that have not been committed                                                  |
+| `refresh`             | Refresh file buffer                                                                             |
+| `version`             | Write the Huffpress library version                                                             |
+| `file`                | Write file info                                                                                 |
+| `exit`                | Exit the program                                                                                |
+---
+| Prefix                | Description                                                                                     |
+|-----------------------|-------------------------------------------------------------------------------------------------|
+| `!...`               | Execute everything after `!` in the console                                                      |
+
 ## Constructor
 
 ### `HuffpressCLI()`
