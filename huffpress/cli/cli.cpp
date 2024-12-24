@@ -77,7 +77,7 @@ namespace Huffpress {
             if (c == '"' && (currentCommand.empty() || currentCommand.back() != '\\')) {
                 insideQuotes = !insideQuotes; 
             }
-            if (!insideQuotes && (c == '&' || c == ';')) {
+            if (!insideQuotes && (c == '&' || c == ';' || c == '\n')) {
                 if (!currentCommand.empty()) {
                     commands.push_back(currentCommand);
                     currentCommand.clear();
