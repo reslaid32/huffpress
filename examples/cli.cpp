@@ -1,5 +1,3 @@
-
-#include <huffpress/huffpress.h>
 #include <huffpress/cli/cli.h>
 #include <unistd.h>
 
